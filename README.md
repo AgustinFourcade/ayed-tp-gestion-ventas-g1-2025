@@ -1,0 +1,1 @@
+# ayed-tp-gestion-ventas-g1-2025
