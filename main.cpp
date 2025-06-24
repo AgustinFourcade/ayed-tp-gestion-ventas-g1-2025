@@ -19,7 +19,7 @@ int main() {
         cout << "3. Analizar ventas" << endl;
         cout << "0. Salir" << endl;
         cout << "--------------------------------------" << endl;
-        cout << "\nSeleccione una opcion: ";
+        cout << "Seleccione una opcion: ";
         cin >> opcion;
 
         switch (opcion) {
@@ -45,7 +45,6 @@ int main() {
     return 0;
 }
 
-void registrarVendedores() {}
 void registrarVentas() {}
 void analizarVentas() {}
 
