@@ -26,7 +26,6 @@ int contarVendedores() {
 
     fclose(archivo);
 
-    cout << contador << endl;
     return contador;
 }
 
@@ -36,8 +35,8 @@ void registrarVendedores() {
     int cantidadActual = contarVendedores();
     int cantidadAgregar;
 
-    cout << "Cantidad actual de vendedores: " << cantidadActual << endl;
-    cout << "¿Cuantos vendedores desea agregar? ";
+    cout << "\nCantidad actual de vendedores: " << cantidadActual << endl;
+    cout << "Cuantos vendedores desea agregar? ";
     cin >> cantidadAgregar;
 
     if (cantidadActual + cantidadAgregar > MAX_VENDEDORES) {
@@ -72,7 +71,7 @@ void registrarVendedores() {
 
         // Guardar en archivo
         fwrite(&vendedor, sizeof(Vendedor), 1, archivo);
-        cout << "✅ Vendedor registrado con exito.\n";
+        cout << "Vendedor registrado con exito.\n";
     }
 
     fclose(archivo);

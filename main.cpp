@@ -45,6 +45,5 @@ int main() {
     return 0;
 }
 
-void registrarVentas() {}
 void analizarVentas() {}
 
