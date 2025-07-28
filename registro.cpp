@@ -7,10 +7,27 @@ using namespace std;
 const int MAX_VENDEDORES = 15;
 
 struct Vendedor {
-    int codigo; //unico
+    int codigo; //debe ser unico
     char nombre[50];
     char sucursal[50];
 };
+
+int contarVendedores();
+bool validarLimiteVendedores(int cantidadActual, int cantidadAgregar);
+void registrarVendedores(int cantidadActual, int cantidadAgregar);
+
+int main() {
+    int cantidadActual = contarVendedores();
+    int cantidadAgregar;
+
+    cout << "\nCantidad actual de vendedores: " << cantidadActual << endl;
+    cout << "Cuantos vendedores desea agregar? ";
+    cin >> cantidadAgregar;
+
+    if (validarLimiteVendedores(cantidadActual, cantidadAgregar)) {
+        registrarVendedores(cantidadActual, cantidadAgregar);
+    }
+}
 
 // Cuenta la cantidad de vendedores que hay en el archivo
 int contarVendedores() {
@@ -30,21 +47,17 @@ int contarVendedores() {
 }
 
 
-// Función principal para registrar vendedores
-void registrarVendedores() {
-    int cantidadActual = contarVendedores();
-    int cantidadAgregar;
-
-    cout << "\nCantidad actual de vendedores: " << cantidadActual << endl;
-    cout << "Cuantos vendedores desea agregar? ";
-    cin >> cantidadAgregar;
-
+bool validarLimiteVendedores(int cantidadActual, int cantidadAgregar) {
     if (cantidadActual + cantidadAgregar > MAX_VENDEDORES) {
         cout << "Supera el limite de " << MAX_VENDEDORES << " vendedores. Puede agregar hasta "
-            << (MAX_VENDEDORES - cantidadActual) << "." << endl;
-        return;
+                << (MAX_VENDEDORES - cantidadActual) << "." << endl;
+        return false;
     }
+    return true;
+}
 
+// Función principal para registrar vendedores
+void registrarVendedores(int cantidadActual, int cantidadAgregar) {
     FILE* archivo = fopen("vendedores.dat", "ab");
     if (archivo == nullptr) {
         cout << "No se pudo abrir el archivo." << endl;
