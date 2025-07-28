@@ -11,11 +11,13 @@ struct Venta {
     float monto;
 };
 
-void registrarVentas() {
-    FILE* archivo = fopen("ventas_diarias.dat", "ab");
+void registrarVentas(int cantidadAgregar, FILE *archivo);
+
+int main() {
+    FILE *archivo = fopen("ventas_diarias.dat", "ab");
     if (!archivo) {
         cout << "\nNo se pudo abrir el archivo de ventas." << endl;
-        return;
+        return 0;
     }
 
     int cantidadAgregar;
@@ -25,9 +27,13 @@ void registrarVentas() {
     if (cantidadAgregar > 1000) {
         cout << "No puede cargar mas de 1000 ventas por dia." << endl;
         fclose(archivo);
-        return;
+        return 0;
+    } else {
+        registrarVentas(cantidadAgregar, archivo);
     }
+}
 
+void registrarVentas(int cantidadAgregar, FILE *archivo) {
     for (int i = 0; i < cantidadAgregar; ++i) {
         Venta venta;
 
