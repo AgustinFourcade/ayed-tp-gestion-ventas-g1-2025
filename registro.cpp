@@ -13,7 +13,7 @@ struct Vendedor {
 };
 
 int contarVendedores();
-bool validarLimiteVendedores(int cantidadActual, int cantidadAgregar);
+bool excedeLimiteVendedores(int cantidadActual, int cantidadAgregar);
 void registrarVendedores(int cantidadActual, int cantidadAgregar);
 
 int main() {
@@ -24,7 +24,7 @@ int main() {
     cout << "Cuantos vendedores desea agregar? ";
     cin >> cantidadAgregar;
 
-    if (validarLimiteVendedores(cantidadActual, cantidadAgregar)) {
+    if (excedeLimiteVendedores(cantidadActual, cantidadAgregar)) {
         registrarVendedores(cantidadActual, cantidadAgregar);
     }
 }
@@ -47,7 +47,7 @@ int contarVendedores() {
 }
 
 
-bool validarLimiteVendedores(int cantidadActual, int cantidadAgregar) {
+bool excedeLimiteVendedores(int cantidadActual, int cantidadAgregar) {
     if (cantidadActual + cantidadAgregar > MAX_VENDEDORES) {
         cout << "Supera el limite de " << MAX_VENDEDORES << " vendedores. Puede agregar hasta "
                 << (MAX_VENDEDORES - cantidadActual) << "." << endl;
