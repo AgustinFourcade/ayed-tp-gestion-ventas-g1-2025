@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <cstring>
 
 using namespace std;
@@ -21,6 +20,61 @@ struct Venta {
 const int MAX_VENDEDORES = 100;
 const int MAX_PRODUCTOS = 1000;
 
+int buscarVendedor(Vendedor vendedores[], int cantidad, int codigoBuscado);
+
+int buscarProducto(int productos[], int cantidad, int codigoBuscado);
+
+int cargarVendedores(Vendedor vendedores[], int maxVendedores);
+
+void procesarVentas(
+    Vendedor vendedores[],
+    int totalVendedores,
+    float ventasPorVendedor[],
+    float ventasPorSucursal[],
+    int productos[],
+    int cantidadVentas[],
+    int &totalProductos
+);
+
+void obtenerVendedorMaximo(Vendedor vendedores[], float ventasPorVendedor[], int totalVendedores);
+
+void obtenerSucursalMaxima(Vendedor vendedores[], float ventasPorSucursal[], int totalVendedores);
+
+void rankearProductos(int productos[], int cantidadVentas[], int totalProductos);
+
+
+int main() {
+    Vendedor vendedores[MAX_VENDEDORES];
+    float ventasPorVendedor[MAX_VENDEDORES] = {0};
+    float ventasPorSucursal[MAX_VENDEDORES] = {0};
+
+    // Cargar vendedores
+    int totalVendedores = cargarVendedores(vendedores, MAX_VENDEDORES);
+
+    // Arrays para ranking de productos
+    int productos[MAX_PRODUCTOS] = {0};
+    int cantidadVentas[MAX_PRODUCTOS] = {0};
+    int totalProductos = 0;
+
+    // Procesar ventas
+    procesarVentas(vendedores, totalVendedores, ventasPorVendedor, ventasPorSucursal, productos,
+                   cantidadVentas, totalProductos);
+
+
+    // Vendedor que más vendió
+    obtenerVendedorMaximo(vendedores, ventasPorVendedor, totalVendedores);
+
+    // Sucursal que más vendió
+    obtenerSucursalMaxima(vendedores, ventasPorSucursal, totalVendedores);
+
+    // Ranking de productos (orden básico tipo burbuja)
+    rankearProductos(productos, cantidadVentas, totalProductos);
+
+    cout << "\nAnálisis de ventas finalizado correctamente." << endl;
+
+    return 0;
+}
+
 int buscarVendedor(Vendedor vendedores[], int cantidad, int codigoBuscado) {
     for (int i = 0; i < cantidad; i++) {
         if (vendedores[i].codigo == codigoBuscado) {
@@ -39,69 +93,68 @@ int buscarProducto(int productos[], int cantidad, int codigoBuscado) {
     return -1;
 }
 
-int main() {
-    Vendedor vendedores[MAX_VENDEDORES];
-    float ventasPorVendedor[MAX_VENDEDORES] = {0};
-    char sucursales[MAX_VENDEDORES][50];
-    float ventasPorSucursal[MAX_VENDEDORES] = {0};
-    int totalVendedores = 0;
-
-    // Cargar vendedores
-    ifstream archVend("vendedores.dat", ios::binary);
-    if (!archVend) {
-        cout << "Error al abrir vendedores.dat" << endl;
-        return 1;
+int cargarVendedores(Vendedor vendedores[], int maxVendedores) {
+    FILE *archivo = fopen("vendedores.dat", "rb");
+    if (!archivo) {
+        cout << "No se pudo abrir el archivo de vendedores." << endl;
+        return 0;
     }
 
-    while (archVend.read((char *) &vendedores[totalVendedores], sizeof(Vendedor))) {
-        // Guardamos sucursal en array paralelo
-        strcpy(sucursales[totalVendedores], vendedores[totalVendedores].sucursal);
-        totalVendedores++;
-        if (totalVendedores >= MAX_VENDEDORES) break;
-    }
-    archVend.close();
-
-    // Arrays para ranking de productos
-    int productos[MAX_PRODUCTOS];
-    int cantidadVentas[MAX_PRODUCTOS];
-    int totalProductos = 0;
-
-    // Procesar ventas
-    ifstream archVentas("ventas_diarias.dat", ios::binary);
-    if (!archVentas) {
-        cout << "Error al abrir ventas_diarias.dat" << endl;
-        return 1;
+    int total = 0;
+    while (total < maxVendedores && fread(&vendedores[total], sizeof(Vendedor), 1, archivo) == 1) {
+        total++;
     }
 
-    Venta v;
-    while (archVentas.read((char *) &v, sizeof(Venta))) {
-        int posVendedor = buscarVendedor(vendedores, totalVendedores, v.codVendedor);
+    fclose(archivo);
+    return total;
+}
+
+void procesarVentas(
+    Vendedor vendedores[],
+    int totalVendedores,
+    float ventasPorVendedor[],
+    float ventasPorSucursal[],
+    int productos[],
+    int cantidadVentas[],
+    int &totalProductos
+) {
+    FILE *archivoVentas = fopen("ventas_diarias.dat", "rb");
+    if (!archivoVentas) {
+        cout << "\nNo se pudo abrir el archivo de ventas." << endl;
+        return;
+    }
+
+    Venta venta;
+    while (fread(&venta, sizeof(Venta), 1, archivoVentas) == 1) {
+        int posVendedor = buscarVendedor(vendedores, totalVendedores, venta.codVendedor);
         if (posVendedor == -1) continue;
 
         // Acumular venta por vendedor
-        ventasPorVendedor[posVendedor] += v.monto;
+        ventasPorVendedor[posVendedor] += venta.monto;
 
         // Acumular por sucursal
         for (int i = 0; i < totalVendedores; i++) {
             if (strcmp(vendedores[i].sucursal, vendedores[posVendedor].sucursal) == 0) {
-                ventasPorSucursal[i] += v.monto;
-                break; // solo una vez por sucursal
+                ventasPorSucursal[i] += venta.monto;
+                break;
             }
         }
 
         // Contar producto
-        int posProducto = buscarProducto(productos, totalProductos, v.codProducto);
+        int posProducto = buscarProducto(productos, totalProductos, venta.codProducto);
         if (posProducto == -1 && totalProductos < MAX_PRODUCTOS) {
-            productos[totalProductos] = v.codProducto;
+            productos[totalProductos] = venta.codProducto;
             cantidadVentas[totalProductos] = 1;
             totalProductos++;
         } else if (posProducto != -1) {
             cantidadVentas[posProducto]++;
         }
     }
-    archVentas.close();
 
-    // Vendedor que más vendió
+    fclose(archivoVentas);
+}
+
+void obtenerVendedorMaximo(Vendedor vendedores[], float ventasPorVendedor[], int totalVendedores) {
     float maxMonto = 0;
     int posMaxVend = -1;
     for (int i = 0; i < totalVendedores; i++) {
@@ -115,10 +168,12 @@ int main() {
         cout << "Vendedor que más vendió: " << vendedores[posMaxVend].nombre
                 << " - Monto total: $" << ventasPorVendedor[posMaxVend] << endl;
     }
+}
 
-    // Sucursal que más vendió
+void obtenerSucursalMaxima(Vendedor vendedores[], float ventasPorSucursal[], int totalVendedores) {
     float maxSucursal = 0;
     int posMaxSucursal = -1;
+
     for (int i = 0; i < totalVendedores; i++) {
         if (ventasPorSucursal[i] > maxSucursal) {
             maxSucursal = ventasPorSucursal[i];
@@ -127,11 +182,13 @@ int main() {
     }
 
     if (posMaxSucursal != -1) {
-        cout << "Sucursal que más vendió: " << sucursales[posMaxSucursal]
+        cout << "Sucursal que más vendió: " << vendedores[posMaxSucursal].sucursal
                 << " - Monto total: $" << ventasPorSucursal[posMaxSucursal] << endl;
     }
+}
 
-    // Ranking de productos (orden básico tipo burbuja)
+
+void rankearProductos(int productos[1000], int cantidadVentas[1000], int totalProductos) {
     for (int i = 0; i < totalProductos - 1; i++) {
         for (int j = i + 1; j < totalProductos; j++) {
             if (cantidadVentas[j] > cantidadVentas[i]) {
@@ -147,11 +204,9 @@ int main() {
         }
     }
 
-    cout << "Ranking de productos más vendidos:\n";
+    cout << "\nRanking de productos más vendidos:\n";
     for (int i = 0; i < totalProductos; i++) {
         cout << "Producto " << productos[i]
                 << " - Veces vendido: " << cantidadVentas[i] << endl;
     }
-
-    return 0;
 }
