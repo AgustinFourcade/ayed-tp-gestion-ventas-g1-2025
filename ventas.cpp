@@ -11,7 +11,14 @@ struct Venta {
     float monto;
 };
 
+struct Vendedor {
+    int codigo; //debe ser unico
+    char nombre[50];
+    char sucursal[50];
+};
+
 void registrarVentas(int cantidadAgregar, FILE *archivo);
+bool existeVendedor(int codigo);
 
 int main() {
     FILE *archivo = fopen("ventas_diarias.dat", "ab");
@@ -28,9 +35,9 @@ int main() {
         cout << "No puede cargar mas de 1000 ventas por dia." << endl;
         fclose(archivo);
         return 0;
-    } else {
-        registrarVentas(cantidadAgregar, archivo);
     }
+
+    registrarVentas(cantidadAgregar, archivo);
 }
 
 void registrarVentas(int cantidadAgregar, FILE *archivo) {
@@ -44,6 +51,12 @@ void registrarVentas(int cantidadAgregar, FILE *archivo) {
         cout << "Ingrese codigo de vendedor: ";
         cin >> venta.codVendedor;
 
+        if (!existeVendedor(venta.codVendedor)) {
+            cout << "El vendedor con codigo " << venta.codVendedor << " no existe. Intente de nuevo." << endl;
+            --i; // Decrementar i para repetir el registro
+            continue; // Saltar al siguiente ciclo
+        }
+
         cout << "Ingrese codigo de producto: ";
         cin >> venta.codProducto;
 
@@ -55,4 +68,23 @@ void registrarVentas(int cantidadAgregar, FILE *archivo) {
     }
 
     fclose(archivo);
+}
+
+bool existeVendedor(int codigo) {
+    FILE *archivo = fopen("vendedores.dat", "rb");
+    if (!archivo) {
+        cout << "No se pudo abrir el archivo de vendedores." << endl;
+        return false;
+    }
+
+    Vendedor vendedor;
+    while (fread(&vendedor, sizeof(Vendedor), 1, archivo)) {
+        if (vendedor.codigo == codigo) {
+            fclose(archivo);
+            return true; // Vendedor encontrado
+        }
+    }
+
+    fclose(archivo);
+    return false; // Vendedor no encontrado
 }
