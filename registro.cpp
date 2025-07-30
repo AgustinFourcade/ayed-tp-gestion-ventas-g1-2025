@@ -15,6 +15,7 @@ struct Vendedor {
 int contarVendedores();
 bool excedeLimiteVendedores(int cantidadActual, int cantidadAgregar);
 void registrarVendedores(int cantidadActual, int cantidadAgregar);
+bool existeVendedor(int codigo);
 
 int main() {
     int cantidadActual = contarVendedores();
@@ -27,33 +28,6 @@ int main() {
     if (excedeLimiteVendedores(cantidadActual, cantidadAgregar)) {
         registrarVendedores(cantidadActual, cantidadAgregar);
     }
-}
-
-// Cuenta la cantidad de vendedores que hay en el archivo
-int contarVendedores() {
-    FILE* archivo = fopen("vendedores.dat", "rb");
-    if (!archivo) return 0;
-
-    Vendedor vendedor;
-    int contador = 0;
-
-    while (fread(&vendedor, sizeof(Vendedor), 1, archivo)) {
-        contador++;
-    }
-
-    fclose(archivo);
-
-    return contador;
-}
-
-
-bool excedeLimiteVendedores(int cantidadActual, int cantidadAgregar) {
-    if (cantidadActual + cantidadAgregar > MAX_VENDEDORES) {
-        cout << "Supera el limite de " << MAX_VENDEDORES << " vendedores. Puede agregar hasta "
-                << (MAX_VENDEDORES - cantidadActual) << "." << endl;
-        return false;
-    }
-    return true;
 }
 
 // Función principal para registrar vendedores
@@ -74,6 +48,12 @@ void registrarVendedores(int cantidadActual, int cantidadAgregar) {
         cin >> vendedor.codigo;
         cin.ignore(); // limpiar \n
 
+        if (existeVendedor(vendedor.codigo)) {
+            cout << "Ya hay un vendedor que tiene este codigo. Intente con otro." << endl;
+            --i; // Decrementar i para repetir el registro
+            continue; // Saltar al siguiente ciclo
+        }
+
         // Nombre
         cout << "Ingrese nombre del vendedor: ";
         cin.getline(vendedor.nombre, 50);
@@ -88,4 +68,50 @@ void registrarVendedores(int cantidadActual, int cantidadAgregar) {
     }
 
     fclose(archivo);
+}
+
+// Cuenta la cantidad de vendedores que hay en el archivo
+int contarVendedores() {
+    FILE* archivo = fopen("vendedores.dat", "rb");
+    if (!archivo) return 0;
+
+    Vendedor vendedor;
+    int contador = 0;
+
+    while (fread(&vendedor, sizeof(Vendedor), 1, archivo)) {
+        contador++;
+    }
+
+    fclose(archivo);
+
+    return contador;
+}
+
+//Verifica si al agregar una cantidad de vendedores no se supera el limite
+bool excedeLimiteVendedores(int cantidadActual, int cantidadAgregar) {
+    if (cantidadActual + cantidadAgregar > MAX_VENDEDORES) {
+        cout << "Supera el limite de " << MAX_VENDEDORES << " vendedores. Puede agregar hasta "
+                << (MAX_VENDEDORES - cantidadActual) << "." << endl;
+        return false;
+    }
+    return true;
+}
+
+// Verifica si un vendedor con el codigo especificado ya existe
+bool existeVendedor(int codigo) {
+    FILE* archivo = fopen("vendedores.dat", "rb");
+    if (!archivo) {
+        return false;
+    }
+
+    Vendedor vendedor;
+    while (fread(&vendedor, sizeof(Vendedor), 1, archivo)) {
+        if (vendedor.codigo == codigo) {
+            fclose(archivo);
+            return true; // Vendedor encontrado
+        }
+    }
+
+    fclose(archivo);
+    return false; // Vendedor no encontrado
 }
