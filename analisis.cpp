@@ -70,7 +70,7 @@ int main() {
     // Ranking de productos (orden básico tipo burbuja)
     rankearProductos(productos, cantidadVentas, totalProductos);
 
-    cout << "\nAnálisis de ventas finalizado correctamente." << endl;
+    cout << "\nAnalisis de ventas finalizado correctamente." << endl;
 
     return 0;
 }
@@ -165,7 +165,7 @@ void obtenerVendedorMaximo(Vendedor vendedores[], float ventasPorVendedor[], int
     }
 
     if (posMaxVend != -1) {
-        cout << "Vendedor que más vendió: " << vendedores[posMaxVend].nombre
+        cout << "Vendedor que mas vendio: " << vendedores[posMaxVend].nombre
                 << " - Monto total: $" << ventasPorVendedor[posMaxVend] << endl;
     }
 }
@@ -182,7 +182,7 @@ void obtenerSucursalMaxima(Vendedor vendedores[], float ventasPorSucursal[], int
     }
 
     if (posMaxSucursal != -1) {
-        cout << "Sucursal que más vendió: " << vendedores[posMaxSucursal].sucursal
+        cout << "Sucursal que mas vendio: " << vendedores[posMaxSucursal].sucursal
                 << " - Monto total: $" << ventasPorSucursal[posMaxSucursal] << endl;
     }
 }
@@ -204,7 +204,7 @@ void rankearProductos(int productos[1000], int cantidadVentas[1000], int totalPr
         }
     }
 
-    cout << "\nRanking de productos más vendidos:\n";
+    cout << "\nRanking de productos mas vendidos:\n";
     for (int i = 0; i < totalProductos; i++) {
         cout << "Producto " << productos[i]
                 << " - Veces vendido: " << cantidadVentas[i] << endl;
